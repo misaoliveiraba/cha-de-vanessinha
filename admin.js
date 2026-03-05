@@ -9,7 +9,7 @@ import {
 // ── Admin e-mails — add allowed admin emails here ───────────────────────
 const ADMIN_EMAILS = [
     'nessacarolsp@gmail.com',
-    'adicione_mais_um_email_aqui@gmail.com'
+    'tiseduc@gmail.com'
 ];
 
 // ── DOM refs ──────────────────────────────────────────────────────────────
