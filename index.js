@@ -40,28 +40,34 @@ const GIFT_SEEDS = [
     { id: 'g24', name: '6 Taças', icon: '🥂' },
     { id: 'g25', name: 'Jogo de Facas', icon: '🔪' },
     { id: 'g26', name: 'Abajur ou Luminária de cabeceira', icon: '💡' },
-    { id: 'g27', name: 'Outro (descreva o que vai dar!)', icon: '🎁', isOther: true },
+    { id: 'g27', name: 'Micro-ondas', icon: '🍿' },
+    { id: 'g28', name: 'Sanduicheira', icon: '🥪' },
+    { id: 'g29', name: 'Liquidificador', icon: '🥤' }
 ];
 
-// ── State ─────────────────────────────────────────────────────────────────
-let currentUser = null;
-let userChosenGiftId = null; // the gift id this user has chosen (if any)
+const muralEl = document.getElementById('mural');
+const giftGrid = document.getElementById('gift-grid');
+const msgInput = document.getElementById('msg-input');
+const btnSendMsg = document.getElementById('btn-send-msg');
+const toastEl = document.getElementById('toast');
+const customGiftList = document.getElementById('custom-gift-list');
+const customGiftInput = document.getElementById('custom-gift-input');
+const muralEmpty = document.getElementById('mural-empty');
+const btnSendCustom = document.getElementById('btn-send-custom');
 
-// ── DOM refs ──────────────────────────────────────────────────────────────
+// Auth elements
 const loginOverlay = document.getElementById('login-overlay');
 const appEl = document.getElementById('app');
 const userBar = document.getElementById('user-bar');
 const userAvatar = document.getElementById('user-avatar');
 const userNameEl = document.getElementById('user-name');
 const adminLink = document.getElementById('admin-link');
-const giftGrid = document.getElementById('gift-grid');
-const muralEl = document.getElementById('mural');
-const muralEmpty = document.getElementById('mural-empty');
-const msgInput = document.getElementById('msg-input');
-const btnSendMsg = document.getElementById('btn-send-msg');
-const toastEl = document.getElementById('toast');
 
-// ── Toast helper ──────────────────────────────────────────────────────────
+
+let currentUser = null;
+let userChosenGiftId = null; // the gift id this user has chosen (if any)
+
+// ── Toast ──────────────────────────────────────────────────────────────────
 let toastTimer;
 function showToast(msg) {
     toastEl.textContent = msg;
@@ -109,15 +115,14 @@ onAuthStateChanged(auth, async (user) => {
         userNameEl.textContent = user.displayName || user.email;
 
         const email = user.email?.trim().toLowerCase();
-        if (email && ADMIN_EMAILS.includes(email)) adminLink.style.display = 'inline';
-
-        try {
-            await seedGiftsIfNeeded();
-        } catch (e) {
-            console.warn('Seed skipped:', e.code || e.message);
+        if (email && ADMIN_EMAILS.includes(email)) {
+            adminLink.style.display = 'inline-block';
         }
+
+        seedGiftsIfNeeded();
         subscribeGifts();
         subscribeMessages();
+        subscribeCustomGifts();
     } else {
         currentUser = null;
         userChosenGiftId = null;
@@ -135,7 +140,6 @@ async function seedGiftsIfNeeded() {
         setDoc(doc(db, 'gifts', g.id), {
             name: g.name,
             icon: g.icon,
-            isOther: g.isOther || false,
             chosenBy: null,
             chosenByName: null,
             chosenByPhoto: null,
@@ -170,7 +174,6 @@ function subscribeGifts() {
 function renderGiftCard(id, data) {
     const isChosen = !!data.chosenBy;
     const isMine = data.chosenBy === currentUser?.uid;
-    const isOther = data.isOther;
 
     const card = document.createElement('div');
     const hasImage = !!data.image;
@@ -191,79 +194,21 @@ function renderGiftCard(id, data) {
              Escolhido por: <strong>${escHtml(data.chosenByName || 'Alguém')}</strong>${data.customText ? ` — "${escHtml(data.customText)}"` : ''}`
             : ''}
       </div>
-      ${isOther && isMine ? `
-        <div class="gift-custom-wrap visible" id="custom-wrap-${id}">
-          <input
-            class="gift-custom-input"
-            id="custom-input-${id}"
-            type="text"
-            placeholder="O que você vai dar?"
-            value="${escHtml(data.customText || '')}"
-            maxlength="80"
-          />
-          <button class="btn-choose" id="save-custom-${id}" style="font-size:.78rem;">Salvar descrição</button>
-        </div>` : ''}
-      ${isOther && !isMine && !isChosen ? `
-        <div class="gift-custom-wrap" id="custom-wrap-${id}">
-          <input
-            class="gift-custom-input"
-            id="custom-input-${id}"
-            type="text"
-            placeholder="O que você vai dar?"
-            maxlength="80"
-          />
-          <button class="btn-choose" id="save-custom-${id}" style="font-size:.78rem;">Salvar e Escolher</button>
-        </div>` : ''}
       <div class="gift-actions" id="actions-${id}">
         ${isMine
             ? `<button class="btn-swap" data-id="${id}">Trocar ↩</button>`
-            : !isChosen && !isOther
+            : !isChosen
                 ? `<button class="btn-choose" data-id="${id}">Escolher →</button>`
                 : ''}
       </div>
     </div>
-  `;
+    `;
 
     // Wiring
     const chooseBtn = card.querySelector(`.btn-choose[data-id="${id}"]`);
     const swapBtn = card.querySelector(`.btn-swap[data-id="${id}"]`);
-    const saveBtn = card.querySelector(`#save-custom-${id}`);
-    const custWrap = card.querySelector(`#custom-wrap-${id}`);
-    const custInput = card.querySelector(`#custom-input-${id}`);
 
-    // "Outro" — show text field when clicking Choose
-    if (isOther && chooseBtn) {
-        chooseBtn.addEventListener('click', () => {
-            if (custWrap) custWrap.classList.add('visible');
-            chooseBtn.style.display = 'none';
-        });
-    }
-
-    if (isOther && custWrap && !isMine && !isChosen) {
-        // The user needs to confirm after entering text
-        if (!saveBtn) {
-            // Add a save button dynamically if not mine
-            const confirmBtn = document.createElement('button');
-            confirmBtn.className = 'btn-choose';
-            confirmBtn.style.fontSize = '.78rem';
-            confirmBtn.textContent = 'Confirmar presente';
-            custWrap.appendChild(confirmBtn);
-            confirmBtn.addEventListener('click', () => chooseGift(id, custInput?.value?.trim()));
-        }
-    }
-
-    if (saveBtn) {
-        saveBtn.addEventListener('click', async () => {
-            const txt = custInput?.value?.trim();
-            if (!txt) { showToast('Descreva o presente antes de salvar!'); return; }
-            saveBtn.disabled = true;
-            await updateDoc(doc(db, 'gifts', id), { customText: txt });
-            showToast('Descrição salva! ✅');
-            saveBtn.disabled = false;
-        });
-    }
-
-    if (chooseBtn && !isOther) {
+    if (chooseBtn) {
         chooseBtn.addEventListener('click', () => chooseGift(id, null));
     }
 
@@ -415,6 +360,59 @@ function renderBalloon(id, data, index, total) {
     }
 
     muralEl.appendChild(balloon);
+}
+
+// ── Custom Gifts ─────────────────────────────────────────────────────────
+function subscribeCustomGifts() {
+    onSnapshot(query(collection(db, 'customGifts'), orderBy('createdAt', 'desc')), (snap) => {
+        customGiftList.innerHTML = '';
+        if (snap.empty) {
+            customGiftList.innerHTML = '<p style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:1rem;">Ninguém adicionou nada ainda. Seja o primeiro!</p>';
+            return;
+        }
+
+        snap.docs.forEach(d => {
+            const data = d.data();
+            const item = document.createElement('div');
+            item.className = 'custom-gift-item';
+
+            const avatar = data.userPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.userName || '?')}&background=1e1e1e&color=c9b07a`;
+
+            item.innerHTML = `
+                <img src="${avatar}" alt="${escHtml(data.userName)}" />
+                <div class="info">
+                    <span class="author">${escHtml(data.userName)}</span>
+                    <p class="text">${escHtml(data.text)}</p>
+                </div>
+            `;
+            customGiftList.appendChild(item);
+        });
+    });
+}
+
+if (btnSendCustom) {
+    btnSendCustom.addEventListener('click', async () => {
+        const text = customGiftInput.value.trim();
+        if (!text) return;
+
+        btnSendCustom.disabled = true;
+        try {
+            await addDoc(collection(db, 'customGifts'), {
+                uid: currentUser.uid,
+                userName: currentUser.displayName || 'Convidado',
+                userPhoto: currentUser.photoURL || null,
+                text: text,
+                createdAt: serverTimestamp()
+            });
+            customGiftInput.value = '';
+            showToast('Item adicionado na lista! ✨');
+        } catch (e) {
+            console.error(e);
+            showToast('Erro ao adicionar item.');
+        } finally {
+            btnSendCustom.disabled = false;
+        }
+    });
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────

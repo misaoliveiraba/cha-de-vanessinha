@@ -88,10 +88,10 @@ Acesse: `http://localhost:3000` (ou a porta exibida).
 | Funcionalidade | Descrição |
 |---|---|
 | 🔑 Login Google | Autenticação obrigatória para interagir |
-| 🎁 Cardápio de presentes | 27 itens, 1 por convidado, em tempo real |
-| ✏️ Item "Outro" | Campo de texto para descrever presente customizado |
+| 🎁 Cardápio de presentes | Itens com foto real ou emoji, 1 por convidado, em tempo real |
+| ✨ Contribuições Extras | Seção para listar presentes que não estão no cardápio principal |
 | 💬 Mural de recados | Balões animados flutuantes com foto, nome e mensagem |
-| 🔐 Painel Admin | Visão geral de presentes + moderação de mensagens |
+| 🔐 Painel Admin | Gestão de presentes (CRUD), fotos e moderação de recados/contribuições |
 
 ---
 
@@ -102,11 +102,21 @@ Acesse: `http://localhost:3000` (ou a porta exibida).
 gifts/{giftId}
   name: string
   icon: string
-  isOther: boolean
-  chosenBy: string | null        (uid)
+  image: string | null        (base64)
+  chosenBy: string | null     (uid)
   chosenByName: string | null
   chosenByPhoto: string | null
   customText: string | null
+```
+
+**Collection `customGifts`**
+```
+customGifts/{id}
+  uid: string
+  userName: string
+  userPhoto: string | null
+  text: string
+  createdAt: timestamp
 ```
 
 **Collection `messages`**

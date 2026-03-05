@@ -23,6 +23,8 @@ const giftsBadge = document.getElementById('gifts-badge');
 const msgsList = document.getElementById('msgs-list');
 const msgsBadge = document.getElementById('msgs-badge');
 const adminStats = document.getElementById('admin-stats');
+const customList = document.getElementById('custom-gifts-list');
+const customBadge = document.getElementById('custom-badge');
 const toastEl = document.getElementById('toast');
 
 // Modal refs
@@ -93,6 +95,7 @@ onAuthStateChanged(auth, (user) => {
 
         subscribeGifts();
         subscribeMessages();
+        subscribeCustomGifts();
     } else {
         loginOverlay.classList.remove('hidden');
         adminApp.style.display = 'none';
@@ -270,7 +273,6 @@ if (giftForm) {
                     name,
                     icon,
                     image: currentImageBase64,
-                    isOther: false,
                     chosenBy: null,
                     chosenByName: null,
                     chosenByPhoto: null,
@@ -340,6 +342,50 @@ async function deleteMessage(id, preview) {
         showToast('Erro ao excluir mensagem.');
         console.error(e);
     }
+}
+
+// ── Custom Gifts subscription ─────────────────────────────────────────────
+function subscribeCustomGifts() {
+    onSnapshot(query(collection(db, 'customGifts'), orderBy('createdAt', 'desc')), (snap) => {
+        customBadge.textContent = `${snap.size} item(ns)`;
+
+        if (snap.empty) {
+            customList.innerHTML = `<p style="padding:1.5rem 1.25rem;color:var(--text-dim);font-size:.85rem;">Nenhuma contribuição extra ainda.</p>`;
+            return;
+        }
+
+        customList.innerHTML = '';
+        snap.docs.forEach(d => {
+            const data = d.data();
+            const item = document.createElement('div');
+            item.className = 'msg-item';
+
+            const avatarSrc = data.userPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.userName || '?')}&background=1e1e1e&color=c9b07a`;
+
+            item.innerHTML = `
+        <img class="msg-item-avatar" src="${avatarSrc}" alt="${escHtml(data.userName)}" />
+        <div class="msg-item-body">
+          <div class="msg-item-meta">
+            <span class="msg-item-name">${escHtml(data.userName || 'Convidado')}</span>
+          </div>
+          <p class="msg-item-text">${escHtml(data.text)}</p>
+        </div>
+        <button class="btn-delete" data-id="${d.id}">🗑 Excluir</button>
+      `;
+
+            item.querySelector('.btn-delete').addEventListener('click', async () => {
+                if (!confirm(`Excluir contribuição de ${data.userName}:\n"${data.text}"?`)) return;
+                try {
+                    await deleteDoc(doc(db, 'customGifts', d.id));
+                    showToast('Contribuição excluída.');
+                } catch (e) {
+                    showToast('Erro ao excluir.');
+                    console.error(e);
+                }
+            });
+            customList.appendChild(item);
+        });
+    });
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────
