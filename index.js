@@ -9,7 +9,7 @@ import {
 // ── Admin emails (anyone with an email in this list sees the Admin link) ─────────
 const ADMIN_EMAILS = [
     'nessacarolsp@gmail.com',
-    'adicione_mais_um_email_aqui@gmail.com'
+    'tiseduc@gmail.com'
 ];
 
 // ── Gift seed data ────────────────────────────────────────────────────────
