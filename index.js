@@ -162,49 +162,54 @@ function renderGiftCard(id, data) {
     const isOther = data.isOther;
 
     const card = document.createElement('div');
-    card.className = `gift-card${isChosen ? ' is-chosen' : ''}${isMine ? ' is-mine' : ''}`;
+    const hasImage = !!data.image;
+    card.className = `gift-card${isChosen ? ' is-chosen' : ''}${isMine ? ' is-mine' : ''}${hasImage ? ' has-image' : ''}`;
     card.dataset.id = id;
 
     card.innerHTML = `
-    ${data.image
-            ? `<img class="gift-photo" src="${data.image}" alt="${escHtml(data.name)}" loading="lazy" />`
-            : `<div class="gift-icon">${data.icon || '🎁'}</div>`
+    ${hasImage
+            ? `<div class="gift-card-bg" style="background-image: url('${data.image}')"></div><div class="gift-card-overlay"></div>`
+            : ''
         }
-    <div class="gift-name">${escHtml(data.name)}</div>
-    <div class="gift-status" id="status-${id}">
-      ${isChosen
+    <div class="gift-content">
+      ${!hasImage ? `<div class="gift-icon">${data.icon || '🎁'}</div>` : ''}
+      <div class="gift-name">${escHtml(data.name)}</div>
+      <div class="gift-status" id="status-${id}">
+        ${isChosen
             ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-           Escolhido por: <strong>${escHtml(data.chosenByName || 'Alguém')}</strong>${data.customText ? ` — "${escHtml(data.customText)}"` : ''}`
+             Escolhido por: <strong>${escHtml(data.chosenByName || 'Alguém')}</strong>${data.customText ? ` — "${escHtml(data.customText)}"` : ''}`
             : ''}
-    </div>
-    ${isOther && isMine ? `
-      <div class="gift-custom-wrap visible" id="custom-wrap-${id}">
-        <input
-          class="gift-custom-input"
-          id="custom-input-${id}"
-          type="text"
-          placeholder="O que você vai dar?"
-          value="${escHtml(data.customText || '')}"
-          maxlength="80"
-        />
-        <button class="btn-choose" id="save-custom-${id}" style="font-size:.78rem;">Salvar descrição</button>
-      </div>` : ''}
-    ${isOther && !isMine && !isChosen ? `
-      <div class="gift-custom-wrap" id="custom-wrap-${id}">
-        <input
-          class="gift-custom-input"
-          id="custom-input-${id}"
-          type="text"
-          placeholder="Descreva o que você vai dar..."
-          maxlength="80"
-        />
-      </div>` : ''}
-    <div class="gift-actions">
-      ${isMine
+      </div>
+      ${isOther && isMine ? `
+        <div class="gift-custom-wrap visible" id="custom-wrap-${id}">
+          <input
+            class="gift-custom-input"
+            id="custom-input-${id}"
+            type="text"
+            placeholder="O que você vai dar?"
+            value="${escHtml(data.customText || '')}"
+            maxlength="80"
+          />
+          <button class="btn-choose" id="save-custom-${id}" style="font-size:.78rem;">Salvar descrição</button>
+        </div>` : ''}
+      ${isOther && !isMine && !isChosen ? `
+        <div class="gift-custom-wrap" id="custom-wrap-${id}">
+          <input
+            class="gift-custom-input"
+            id="custom-input-${id}"
+            type="text"
+            placeholder="O que você vai dar?"
+            maxlength="80"
+          />
+          <button class="btn-choose" id="save-custom-${id}" style="font-size:.78rem;">Salvar e Escolher</button>
+        </div>` : ''}
+      <div class="gift-actions" id="actions-${id}">
+        ${isMine
             ? `<button class="btn-swap" data-id="${id}">Trocar ↩</button>`
-            : !isChosen
+            : !isChosen && !isOther
                 ? `<button class="btn-choose" data-id="${id}">Escolher →</button>`
                 : ''}
+      </div>
     </div>
   `;
 

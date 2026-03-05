@@ -407,12 +407,62 @@ button {
   user-select: none;
 }
 
-.gift-card::before {
-  content: '';
+@media (min-width: 640px) {
+  .gift-card {
+    padding: 1.25rem 1.15rem 1rem;
+  }
+}
+
+
+.gift-card-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(201, 176, 122, .04) 0%, transparent 60%);
-  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.gift-card.has-image {
+  min-height: 240px;
+  justify-content: flex-end;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.gift-card.has-image .gift-name {
+  color: var(--white);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.gift-card.has-image .gift-content {
+  /* Give content a slight translucent background for readability */
+  background: rgba(0, 0, 0, 0.2);
+  margin: 0 -.9rem -.9rem;
+  padding: 1rem .9rem .9rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+@media (min-width: 640px) {
+  .gift-card.has-image .gift-content {
+    margin: 0 -1.15rem -1rem;
+    padding: 1.25rem 1.15rem 1rem;
+  }
+}
+
+
+.gift-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 20%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.9) 100%);
+  z-index: 1;
+}
+
+.gift-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
 }
 
 /* Active state for mobile tap feedback */
@@ -444,26 +494,11 @@ button {
 .gift-icon {
   font-size: 1.8rem;
   line-height: 1;
+  position: relative;
+  z-index: 2;
 }
 
-.gift-photo {
-  width: calc(100% + 1.8rem);
-  /* offsets the padding of .9rem on each side */
-  height: 140px;
-  object-fit: cover;
-  margin: -1rem -.9rem .6rem -.9rem;
-  /* negative top margin -1rem, negative side margins -.9rem */
-  border-radius: var(--radius) var(--radius) 0 0;
-  display: block;
-}
-
-@media (min-width: 640px) {
-  .gift-photo {
-    width: calc(100% + 2.3rem);
-    /* offsets the padding of 1.15rem */
-    margin: -1.25rem -1.15rem .8rem -1.15rem;
-  }
-}
+/* Removed old .gift-photo rules */
 
 .gift-name {
   font-family: var(--font-serif);
