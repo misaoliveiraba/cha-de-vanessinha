@@ -7,7 +7,7 @@ import {
 } from './firebase.js';
 
 // ── Admin e-mail — change this to your actual email ───────────────────────
-const ADMIN_EMAIL = 'COLOQUE_SEU_EMAIL_AQUI@gmail.com';
+const ADMIN_EMAIL = 'nessacarolsp@gmail.com';
 
 // ── DOM refs ──────────────────────────────────────────────────────────────
 const loginOverlay = document.getElementById('login-overlay');

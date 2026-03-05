@@ -7,7 +7,7 @@ import {
 } from './firebase.js';
 
 // ── Admin email (anyone with this email sees the Admin link) ──────────────
-const ADMIN_EMAIL = 'COLOQUE_SEU_EMAIL_AQUI@gmail.com';
+const ADMIN_EMAIL = 'nessacarolsp@gmail.com';
 
 // ── Gift seed data ────────────────────────────────────────────────────────
 const GIFT_SEEDS = [

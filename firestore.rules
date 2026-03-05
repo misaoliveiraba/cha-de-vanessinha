@@ -38,7 +38,7 @@ service cloud.firestore {
         && request.resource.data.text.size() > 0
         && request.resource.data.text.size() <= 300;
       allow delete: if request.auth != null
-        && request.auth.token.email == 'COLOQUE_SEU_EMAIL_AQUI@gmail.com';
+        && request.auth.token.email == 'nessacarolsp@gmail.com';
       allow update: if false;
     }
   }
