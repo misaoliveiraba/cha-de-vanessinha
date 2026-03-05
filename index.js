@@ -70,7 +70,10 @@ function showToast(msg) {
 // ── Auth ──────────────────────────────────────────────────────────────────
 document.getElementById('btn-login').addEventListener('click', async () => {
     try {
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        if (result.user.email === ADMIN_EMAIL) {
+            window.location.href = 'admin.html';
+        }
     } catch (e) {
         showToast('Erro ao fazer login. Tente novamente.');
         console.error(e);
