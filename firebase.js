@@ -1,7 +1,28 @@
-// firebase.js — Firebase initialization using ES Modules (no bundler needed)
-import { initializeApp } from "https://esm.sh/firebase@10.12.2/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://esm.sh/firebase@10.12.2/auth";
-import { getFirestore, collection, doc, getDocs, getDoc, setDoc, updateDoc, addDoc, deleteDoc, onSnapshot, serverTimestamp, query, orderBy } from "https://esm.sh/firebase@10.12.2/firestore";
+// firebase.js — Firebase initialization via official Firebase CDN (ESM)
+// Using gstatic.com CDN ensures all sub-packages share the same internal registry
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+  updateDoc,
+  addDoc,
+  deleteDoc,
+  onSnapshot,
+  serverTimestamp,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAcv0FewVp1so5LeL9k88w3Oc_RA6wz-YI",
