@@ -1,14 +1,20 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email in [
+        'nessacarolsp@gmail.com',
+        'tiseduc@gmail.com'
+      ];
+    }
 
     // Gifts — authenticated users can read all
     // Only the owner can update (choose/release) their own choice
     match /gifts/{giftId} {
       allow read: if request.auth != null;
 
-      // Allow choosing a free gift
-      allow update: if request.auth != null
+      // Allow choosing a free gift OR full admin update
+      allow update: if isAdmin() || (request.auth != null
         && (
           // Releasing: must be the owner
           (resource.data.chosenBy == request.auth.uid
@@ -22,14 +28,14 @@ service cloud.firestore {
           (resource.data.chosenBy == request.auth.uid
             && request.resource.data.chosenBy == request.auth.uid
             && request.resource.data.keys().hasOnly(['customText', 'chosenBy', 'chosenByName', 'chosenByPhoto', 'name', 'icon', 'isOther']))
-        );
+        ));
 
       // Seeding: allow any authenticated user to create gift docs
       // (seed only runs when collection is empty — checked in app logic)
       allow create: if request.auth != null;
 
-      // No deletes by regular users
-      allow delete: if false;
+      // Allow admin to delete gifts
+      allow delete: if isAdmin();
     }
 
     // Messages — authenticated users can read and create
@@ -41,11 +47,7 @@ service cloud.firestore {
         && request.resource.data.text is string
         && request.resource.data.text.size() > 0
         && request.resource.data.text.size() <= 300;
-      allow delete: if request.auth != null
-        && request.auth.token.email in [
-          'nessacarolsp@gmail.com',
-          'adicione_mais_um_email_aqui@gmail.com'
-        ];
+      allow delete: if isAdmin();
       allow update: if false;
     }
   }

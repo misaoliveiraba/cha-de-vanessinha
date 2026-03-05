@@ -10,7 +10,7 @@ import {
 const ADMIN_EMAILS = [
     'nessacarolsp@gmail.com',
     'tiseduc@gmail.com'
-];
+].map(e => e.trim().toLowerCase());
 
 // ── Gift seed data ────────────────────────────────────────────────────────
 const GIFT_SEEDS = [
@@ -74,7 +74,8 @@ function showToast(msg) {
 document.getElementById('btn-login').addEventListener('click', async () => {
     try {
         const result = await signInWithPopup(auth, provider);
-        if (ADMIN_EMAILS.includes(result.user.email)) {
+        const email = result.user.email?.trim().toLowerCase();
+        if (email && ADMIN_EMAILS.includes(email)) {
             window.location.href = 'admin.html';
         }
     } catch (e) {
@@ -96,7 +97,8 @@ onAuthStateChanged(auth, async (user) => {
         userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName)}&background=1e1e1e&color=c9b07a`;
         userNameEl.textContent = user.displayName || user.email;
 
-        if (ADMIN_EMAILS.includes(user.email)) adminLink.style.display = 'inline';
+        const email = user.email?.trim().toLowerCase();
+        if (email && ADMIN_EMAILS.includes(email)) adminLink.style.display = 'inline';
 
         try {
             await seedGiftsIfNeeded();

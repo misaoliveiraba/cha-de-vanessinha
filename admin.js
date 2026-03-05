@@ -2,15 +2,15 @@
 import {
     auth, db, provider,
     signInWithPopup, signOut, onAuthStateChanged,
-    collection, doc, deleteDoc,
+    collection, doc, deleteDoc, setDoc, updateDoc,
     onSnapshot, query, orderBy
 } from './firebase.js';
- 
+
 // ── Admin e-mails — add allowed admin emails here ───────────────────────
 const ADMIN_EMAILS = [
     'nessacarolsp@gmail.com',
     'tiseduc@gmail.com'
-];
+].map(e => e.trim().toLowerCase());
 
 // ── DOM refs ──────────────────────────────────────────────────────────────
 const loginOverlay = document.getElementById('login-overlay');
@@ -24,6 +24,17 @@ const msgsList = document.getElementById('msgs-list');
 const msgsBadge = document.getElementById('msgs-badge');
 const adminStats = document.getElementById('admin-stats');
 const toastEl = document.getElementById('toast');
+
+// Modal refs
+const giftModal = document.getElementById('gift-modal');
+const giftModalTitle = document.getElementById('gift-modal-title');
+const giftForm = document.getElementById('gift-form');
+const giftIdInput = document.getElementById('gift-id');
+const giftIconInput = document.getElementById('gift-icon');
+const giftNameInput = document.getElementById('gift-name');
+const btnCloseModal = document.getElementById('btn-close-modal');
+const btnAddGift = document.getElementById('btn-add-gift');
+const btnSaveGift = document.getElementById('btn-save-gift');
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 let toastTimer;
@@ -50,7 +61,8 @@ document.getElementById('btn-signout').addEventListener('click', async () => {
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        if (!ADMIN_EMAILS.includes(user.email)) {
+        const email = user.email?.trim().toLowerCase();
+        if (!email || !ADMIN_EMAILS.includes(email)) {
             // Not an admin — redirect
             showToast('Acesso negado. Redirecionando…');
             setTimeout(() => { window.location.href = 'index.html'; }, 1500);
@@ -107,9 +119,89 @@ function subscribeGifts() {
           <td>${statusHtml}</td>
           <td>${chosenByHtml}</td>
           <td>${noteHtml}</td>
+          <td style="text-align:right;">
+             <button class="btn-edit-gift" data-id="${d.id}" data-name="${escHtml(data.name)}" data-icon="${escHtml(data.icon)}" title="Editar" style="background:transparent; border:none; font-size:1.1rem; cursor:pointer;">✏️</button>
+             <button class="btn-del-gift" data-id="${d.id}" data-name="${escHtml(data.name)}" title="Excluir" style="background:transparent; border:none; font-size:1.1rem; cursor:pointer; margin-left:.5rem;">🗑️</button>
+          </td>
         </tr>
       `;
         }).join('');
+
+        // Wire up buttons
+        giftsTbody.querySelectorAll('.btn-edit-gift').forEach(btn => {
+            btn.addEventListener('click', () => {
+                giftModalTitle.textContent = 'Editar Presente';
+                giftIdInput.value = btn.dataset.id;
+                giftNameInput.value = btn.dataset.name;
+                giftIconInput.value = btn.dataset.icon;
+                giftModal.classList.remove('hidden');
+            });
+        });
+
+        giftsTbody.querySelectorAll('.btn-del-gift').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!confirm(`Excluir o presente:\n"${btn.dataset.name}"?`)) return;
+                try {
+                    await deleteDoc(doc(db, 'gifts', btn.dataset.id));
+                    showToast('Presente excluído.');
+                } catch (e) {
+                    showToast('Erro ao excluir.');
+                    console.error(e);
+                }
+            });
+        });
+    });
+}
+
+// ── Gifts Actions (Create / Edit) ─────────────────────────────────────────
+if (btnAddGift) {
+    btnAddGift.addEventListener('click', () => {
+        giftModalTitle.textContent = 'Novo Presente';
+        giftForm.reset();
+        giftIdInput.value = '';
+        giftModal.classList.remove('hidden');
+    });
+}
+
+if (btnCloseModal) {
+    btnCloseModal.addEventListener('click', () => {
+        giftModal.classList.add('hidden');
+    });
+}
+
+if (giftForm) {
+    giftForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = giftIdInput.value;
+        const icon = giftIconInput.value.trim() || '🎁';
+        const name = giftNameInput.value.trim();
+        if (!name) return;
+
+        btnSaveGift.disabled = true;
+        try {
+            if (id) {
+                await updateDoc(doc(db, 'gifts', id), { name, icon });
+                showToast('Presente atualizado!');
+            } else {
+                const newId = 'x' + Date.now(); // sorts at the end naturally
+                await setDoc(doc(db, 'gifts', newId), {
+                    name,
+                    icon,
+                    isOther: false,
+                    chosenBy: null,
+                    chosenByName: null,
+                    chosenByPhoto: null,
+                    customText: null,
+                });
+                showToast('Presente adicionado!');
+            }
+            giftModal.classList.add('hidden');
+        } catch (err) {
+            showToast('Erro ao salvar.');
+            console.error(err);
+        } finally {
+            btnSaveGift.disabled = false;
+        }
     });
 }
 

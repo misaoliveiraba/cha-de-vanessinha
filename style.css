@@ -1060,6 +1060,43 @@ footer span {
 }
 
 /* ────────────────────────────────────────────────────────
+   MODAL
+──────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.modal-content h2 {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--white);
+}
+
+/* ────────────────────────────────────────────────────────
    TOAST — anchored to top on mobile (avoids keyboard overlap)
 ──────────────────────────────────────────────────────── */
 #toast {
