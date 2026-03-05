@@ -65,7 +65,6 @@ const adminLink = document.getElementById('admin-link');
 
 
 let currentUser = null;
-let userChosenGiftId = null; // the gift id this user has chosen (if any)
 
 // ── Toast ──────────────────────────────────────────────────────────────────
 let toastTimer;
@@ -165,9 +164,8 @@ async function seedGiftsIfNeeded() {
 // ── Render gifts (real-time) ──────────────────────────────────────────────
 function subscribeGifts() {
     onSnapshot(collection(db, 'gifts'), (snap) => {
-        userChosenGiftId = null;
         snap.docs.forEach(d => {
-            if (d.data().chosenBy === currentUser.uid) userChosenGiftId = d.id;
+            // No longer tracking a single choice
         });
 
         giftGrid.innerHTML = '';
@@ -234,10 +232,6 @@ function renderGiftCard(id, data) {
 
 async function chooseGift(id, customText = null) {
     if (!currentUser) return;
-    if (userChosenGiftId && userChosenGiftId !== id) {
-        showToast('Você já escolheu um item. Troque-o primeiro!');
-        return;
-    }
     try {
         await updateDoc(doc(db, 'gifts', id), {
             chosenBy: currentUser.uid,
