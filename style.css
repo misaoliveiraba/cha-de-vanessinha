@@ -447,12 +447,22 @@ button {
 }
 
 .gift-photo {
-  width: 56px;
-  height: 56px;
+  width: calc(100% + 1.8rem);
+  /* offsets the padding of .9rem on each side */
+  height: 140px;
   object-fit: cover;
-  border-radius: 8px;
+  margin: -1rem -.9rem .6rem -.9rem;
+  /* negative top margin -1rem, negative side margins -.9rem */
+  border-radius: var(--radius) var(--radius) 0 0;
   display: block;
-  border: 1px solid var(--border);
+}
+
+@media (min-width: 640px) {
+  .gift-photo {
+    width: calc(100% + 2.3rem);
+    /* offsets the padding of 1.15rem */
+    margin: -1.25rem -1.15rem .8rem -1.15rem;
+  }
 }
 
 .gift-name {
