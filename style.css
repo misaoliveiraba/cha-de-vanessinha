@@ -319,6 +319,7 @@ button {
   max-width: 1100px;
   margin: 0 auto;
   width: 100%;
+  text-align: center;
 }
 
 @media (min-width: 640px) {
@@ -351,7 +352,8 @@ button {
   color: var(--text-muted);
   max-width: 480px;
   line-height: 1.75;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem;
+  /* auto centering */
 }
 
 /* ────────────────────────────────────────────────────────
@@ -362,6 +364,8 @@ button {
   /* Mobile: 2 compact columns */
   grid-template-columns: repeat(2, 1fr);
   gap: .75rem;
+  /* Left-align cards within the centered section */
+  text-align: left;
 }
 
 @media (min-width: 480px) {
@@ -604,6 +608,9 @@ button {
   flex-direction: column;
   gap: .75rem;
   max-width: 600px;
+  /* Center the form block inside the centered section */
+  margin: 0 auto;
+  text-align: left;
 }
 
 .msg-textarea {
@@ -621,6 +628,7 @@ button {
   outline: none;
   transition: border-color var(--transition);
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .msg-textarea:focus {

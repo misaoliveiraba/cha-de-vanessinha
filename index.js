@@ -92,7 +92,11 @@ onAuthStateChanged(auth, async (user) => {
 
         if (user.email === ADMIN_EMAIL) adminLink.style.display = 'inline';
 
-        await seedGiftsIfNeeded();
+        try {
+            await seedGiftsIfNeeded();
+        } catch (e) {
+            console.warn('Seed skipped:', e.code || e.message);
+        }
         subscribeGifts();
         subscribeMessages();
     } else {
@@ -131,9 +135,16 @@ function subscribeGifts() {
         });
 
         giftGrid.innerHTML = '';
-        // Sort by numeric part of id
+        if (snap.empty) {
+            giftGrid.innerHTML = '<p style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:2rem;">Carregando presentes…</p>';
+            return;
+        }
+        // Sort by id
         const sorted = snap.docs.slice().sort((a, b) => a.id.localeCompare(b.id));
         sorted.forEach(d => renderGiftCard(d.id, d.data()));
+    }, (err) => {
+        console.error('Firestore gifts error:', err);
+        giftGrid.innerHTML = '<p style="color:#c97a7a;grid-column:1/-1;text-align:center;padding:2rem;">Erro ao carregar presentes. Recarregue a página.</p>';
     });
 }
 
