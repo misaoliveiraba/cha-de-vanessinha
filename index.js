@@ -116,28 +116,26 @@ onAuthStateChanged(auth, async (user) => {
         const email = user.email?.trim().toLowerCase();
         if (email && ADMIN_EMAILS.includes(email)) {
             adminLink.style.display = 'inline-block';
+
+            // One-time cleanup for Admins only (to have permission to delete)
+            setTimeout(async () => {
+                try {
+                    const giftsSnap = await getDocs(collection(db, 'gifts'));
+                    giftsSnap.forEach(async (d) => {
+                        const data = d.data();
+                        if (data.name?.toLowerCase().includes('outro') || data.isOther) {
+                            await deleteDoc(doc(db, 'gifts', d.id));
+                            console.log(`Legacy gift "${data.name}" (ID: ${d.id}) removed by admin.`);
+                        }
+                    });
+                } catch (e) { /* admin already cleaned up or error */ }
+            }, 1500);
         }
 
         seedGiftsIfNeeded();
         subscribeGifts();
         subscribeMessages();
         subscribeCustomGifts();
-
-        // One-time cleanup: remove legacy "Outro" gift if it exists in Firestore
-        // This ensures the grid stays clean now that we have the dedicated section.
-        // One-time cleanup: remove any legacy "Outro" gift items from Firestore
-        setTimeout(async () => {
-            try {
-                const giftsSnap = await getDocs(collection(db, 'gifts'));
-                giftsSnap.forEach(async (d) => {
-                    const data = d.data();
-                    if (data.name?.toLowerCase().includes('outro') || data.isOther) {
-                        await deleteDoc(doc(db, 'gifts', d.id));
-                        console.log(`Legacy gift "${data.name}" (ID: ${d.id}) removed.`);
-                    }
-                });
-            } catch (e) { console.error('Cleanup error:', e); }
-        }, 1500);
     } else {
         currentUser = null;
         userChosenGiftId = null;
