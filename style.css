@@ -942,6 +942,7 @@ button {
   border-radius: 12px;
   color: var(--text);
   font-size: .9rem;
+  min-height: 48px;
 }
 
 .custom-gift-form input:focus {
@@ -950,15 +951,36 @@ button {
 }
 
 .btn-send-mini {
+  background: var(--gold);
   background: var(--gold-grad);
   border: none;
-  padding: 0 1.2rem;
+  padding: 0 1.5rem;
   border-radius: 12px;
   color: #000;
-  font-weight: 600;
+  font-weight: 700;
   font-size: .85rem;
   cursor: pointer;
   white-space: nowrap;
+  transition: all .2s ease;
+  box-shadow: 0 4px 15px rgba(201, 176, 122, 0.2);
+  min-height: 48px;
+  /* Standard touch target */
+}
+
+.btn-send-mini:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201, 176, 122, 0.3);
+  filter: brightness(1.1);
+}
+
+.btn-send-mini:active {
+  transform: translateY(0);
+}
+
+.btn-send-mini:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 @keyframes fadeIn {

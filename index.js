@@ -123,6 +123,19 @@ onAuthStateChanged(auth, async (user) => {
         subscribeGifts();
         subscribeMessages();
         subscribeCustomGifts();
+
+        // One-time cleanup: remove legacy "Outro" gift if it exists in Firestore
+        // This ensures the grid stays clean now that we have the dedicated section.
+        setTimeout(async () => {
+            try {
+                const docRef = doc(db, 'gifts', 'g27');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists() && (docSnap.data().name?.includes('Outro') || docSnap.data().isOther)) {
+                    await deleteDoc(docRef);
+                    console.log('Legacy "Outro" gift removed.');
+                }
+            } catch (e) { /* ignore */ }
+        }, 1000);
     } else {
         currentUser = null;
         userChosenGiftId = null;
