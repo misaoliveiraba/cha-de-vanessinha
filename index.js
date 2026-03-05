@@ -6,8 +6,11 @@ import {
     onSnapshot, serverTimestamp, query, orderBy
 } from './firebase.js';
 
-// ── Admin email (anyone with this email sees the Admin link) ──────────────
-const ADMIN_EMAIL = 'nessacarolsp@gmail.com';
+// ── Admin emails (anyone with an email in this list sees the Admin link) ─────────
+const ADMIN_EMAILS = [
+    'nessacarolsp@gmail.com',
+    'adicione_mais_um_email_aqui@gmail.com'
+];
 
 // ── Gift seed data ────────────────────────────────────────────────────────
 const GIFT_SEEDS = [
@@ -71,7 +74,7 @@ function showToast(msg) {
 document.getElementById('btn-login').addEventListener('click', async () => {
     try {
         const result = await signInWithPopup(auth, provider);
-        if (result.user.email === ADMIN_EMAIL) {
+        if (ADMIN_EMAILS.includes(result.user.email)) {
             window.location.href = 'admin.html';
         }
     } catch (e) {
@@ -93,7 +96,7 @@ onAuthStateChanged(auth, async (user) => {
         userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName)}&background=1e1e1e&color=c9b07a`;
         userNameEl.textContent = user.displayName || user.email;
 
-        if (user.email === ADMIN_EMAIL) adminLink.style.display = 'inline';
+        if (ADMIN_EMAILS.includes(user.email)) adminLink.style.display = 'inline';
 
         try {
             await seedGiftsIfNeeded();

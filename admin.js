@@ -6,8 +6,11 @@ import {
     onSnapshot, query, orderBy
 } from './firebase.js';
 
-// ── Admin e-mail — change this to your actual email ───────────────────────
-const ADMIN_EMAIL = 'nessacarolsp@gmail.com';
+// ── Admin e-mails — add allowed admin emails here ───────────────────────
+const ADMIN_EMAILS = [
+    'nessacarolsp@gmail.com',
+    'adicione_mais_um_email_aqui@gmail.com'
+];
 
 // ── DOM refs ──────────────────────────────────────────────────────────────
 const loginOverlay = document.getElementById('login-overlay');
@@ -47,7 +50,7 @@ document.getElementById('btn-signout').addEventListener('click', async () => {
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        if (user.email !== ADMIN_EMAIL) {
+        if (!ADMIN_EMAILS.includes(user.email)) {
             // Not an admin — redirect
             showToast('Acesso negado. Redirecionando…');
             setTimeout(() => { window.location.href = 'index.html'; }, 1500);

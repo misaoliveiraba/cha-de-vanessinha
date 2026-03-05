@@ -42,7 +42,10 @@ service cloud.firestore {
         && request.resource.data.text.size() > 0
         && request.resource.data.text.size() <= 300;
       allow delete: if request.auth != null
-        && request.auth.token.email == 'nessacarolsp@gmail.com';
+        && request.auth.token.email in [
+          'nessacarolsp@gmail.com',
+          'adicione_mais_um_email_aqui@gmail.com'
+        ];
       allow update: if false;
     }
   }
