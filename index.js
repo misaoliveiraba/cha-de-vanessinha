@@ -65,6 +65,14 @@ const adminLink = document.getElementById('admin-link');
 
 
 let currentUser = null;
+let activeListeners = [];
+
+function clearActiveListeners() {
+    activeListeners.forEach(unsub => {
+        if (typeof unsub === 'function') unsub();
+    });
+    activeListeners = [];
+}
 
 // ── Toast ──────────────────────────────────────────────────────────────────
 let toastTimer;
@@ -138,7 +146,7 @@ onAuthStateChanged(auth, async (user) => {
         subscribeCustomGifts();
     } else {
         currentUser = null;
-        userChosenGiftId = null;
+        clearActiveListeners();
         loginOverlay.classList.remove('hidden');
         appEl.style.display = 'none';
         userBar.classList.add('hidden');
@@ -164,10 +172,7 @@ async function seedGiftsIfNeeded() {
 
 // ── Render gifts (real-time) ──────────────────────────────────────────────
 function subscribeGifts() {
-    onSnapshot(collection(db, 'gifts'), (snap) => {
-        snap.docs.forEach(d => {
-            // No longer tracking a single choice
-        });
+    const unsub = onSnapshot(collection(db, 'gifts'), (snap) => {
 
         giftGrid.innerHTML = '';
         if (snap.empty) {
@@ -181,9 +186,11 @@ function subscribeGifts() {
 
         sorted.forEach(d => renderGiftCard(d.id, d.data()));
     }, (err) => {
+        if (!currentUser) return; // Ignore errors during logout
         console.error('Firestore gifts error:', err);
         giftGrid.innerHTML = '<p style="color:#c97a7a;grid-column:1/-1;text-align:center;padding:2rem;">Erro ao carregar presentes. Recarregue a página.</p>';
     });
+    activeListeners.push(unsub);
 }
 
 function renderGiftCard(id, data) {
@@ -298,7 +305,7 @@ async function sendMessage() {
 
 function subscribeMessages() {
     const q = query(collection(db, 'messages'), orderBy('createdAt', 'asc'));
-    onSnapshot(q, (snap) => {
+    const unsub = onSnapshot(q, (snap) => {
         // Remove all current balloons (keep mural-empty)
         muralEl.querySelectorAll('.balloon').forEach(b => b.remove());
 
@@ -308,7 +315,11 @@ function subscribeMessages() {
             muralEmpty.style.display = 'none';
             snap.docs.forEach((d, i) => renderBalloon(d.id, d.data(), i, snap.size));
         }
+    }, (err) => {
+        if (!currentUser) return;
+        console.error('Firestore messages error:', err);
     });
+    activeListeners.push(unsub);
 }
 
 function renderBalloon(id, data, index, total) {
@@ -375,7 +386,7 @@ function renderBalloon(id, data, index, total) {
 
 // ── Custom Gifts ─────────────────────────────────────────────────────────
 function subscribeCustomGifts() {
-    onSnapshot(query(collection(db, 'customGifts'), orderBy('createdAt', 'desc')), (snap) => {
+    const unsub = onSnapshot(query(collection(db, 'customGifts'), orderBy('createdAt', 'desc')), (snap) => {
         customGiftList.innerHTML = '';
         if (snap.empty) {
             customGiftList.innerHTML = '<p style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:1rem;">Ninguém adicionou nada ainda. Seja o primeiro!</p>';
@@ -398,7 +409,11 @@ function subscribeCustomGifts() {
             `;
             customGiftList.appendChild(item);
         });
+    }, (err) => {
+        if (!currentUser) return;
+        console.error('Firestore custom gifts error:', err);
     });
+    activeListeners.push(unsub);
 }
 
 if (btnSendCustom) {
