@@ -327,12 +327,33 @@ function renderBalloon(id, data, index, total) {
     balloon.className = 'balloon';
     balloon.dataset.id = id;
 
-    // Distribute balloons across the mural width in columns, staggering rows
-    const cols = Math.max(3, Math.min(Math.ceil(total / 2), 6));
+    // Detect if we are on a small screen
+    const isMobile = window.innerWidth < 640;
+
+    // Responsive columns
+    let cols;
+    if (isMobile) {
+        cols = window.innerWidth < 400 ? 1 : 2;
+    } else {
+        cols = Math.max(3, Math.min(Math.ceil(total / 2), 6));
+    }
+
     const col = index % cols;
     const row = Math.floor(index / cols);
-    const leftPct = (col / cols) * 85 + rand(0, 8);
-    const topPx = row * 220 + rand(20, 60);
+
+    // Better horizontal distribution for mobile
+    let leftPct;
+    if (cols === 1) {
+        leftPct = 5 + rand(0, 5); // Centerish but slightly random
+    } else if (cols === 2) {
+        leftPct = (col * 45) + 5 + rand(0, 10);
+    } else {
+        leftPct = (col / cols) * 85 + rand(0, 8);
+    }
+
+    // Adjust row height for mobile (taller balloons due to single column)
+    const rowHeight = isMobile ? 320 : 220;
+    const topPx = row * rowHeight + rand(20, 60);
 
     // Random animation parameters for organic feel
     const dur = rand(9, 17);
