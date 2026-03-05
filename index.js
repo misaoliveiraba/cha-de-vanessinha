@@ -176,8 +176,11 @@ function subscribeGifts() {
             giftGrid.innerHTML = '<p style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:2rem;">Carregando presentes…</p>';
             return;
         }
-        // Sort by id
-        const sorted = snap.docs.slice().sort((a, b) => a.id.localeCompare(b.id));
+        // Sort by id and filter out legacy "Outro" cards
+        const sorted = snap.docs
+            .filter(d => !d.data().name?.toLowerCase().includes('outro') && !d.data().isOther)
+            .sort((a, b) => a.id.localeCompare(b.id));
+
         sorted.forEach(d => renderGiftCard(d.id, d.data()));
     }, (err) => {
         console.error('Firestore gifts error:', err);
