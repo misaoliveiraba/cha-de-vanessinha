@@ -125,16 +125,19 @@ onAuthStateChanged(auth, async (user) => {
 
         // One-time cleanup: remove legacy "Outro" gift if it exists in Firestore
         // This ensures the grid stays clean now that we have the dedicated section.
+        // One-time cleanup: remove any legacy "Outro" gift items from Firestore
         setTimeout(async () => {
             try {
-                const docRef = doc(db, 'gifts', 'g27');
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists() && (docSnap.data().name?.includes('Outro') || docSnap.data().isOther)) {
-                    await deleteDoc(docRef);
-                    console.log('Legacy "Outro" gift removed.');
-                }
-            } catch (e) { /* ignore */ }
-        }, 1000);
+                const giftsSnap = await getDocs(collection(db, 'gifts'));
+                giftsSnap.forEach(async (d) => {
+                    const data = d.data();
+                    if (data.name?.toLowerCase().includes('outro') || data.isOther) {
+                        await deleteDoc(doc(db, 'gifts', d.id));
+                        console.log(`Legacy gift "${data.name}" (ID: ${d.id}) removed.`);
+                    }
+                });
+            } catch (e) { console.error('Cleanup error:', e); }
+        }, 1500);
     } else {
         currentUser = null;
         userChosenGiftId = null;
