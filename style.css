@@ -442,27 +442,17 @@ button {
 }
 
 .gift-icon {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   line-height: 1;
 }
 
 .gift-photo {
-  width: calc(100% + 1.8rem);
-  /* offset mobile card padding L/R .9rem */
-  height: 140px;
+  width: 56px;
+  height: 56px;
   object-fit: cover;
-  margin: -1rem -.9rem .5rem -.9rem;
-  /* Top -1rem, L/R -.9rem */
-  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
+  border-radius: 8px;
   display: block;
-}
-
-@media (min-width: 640px) {
-  .gift-photo {
-    width: calc(100% + 2.3rem);
-    /* offset desktop padding L/R 1.15rem */
-    margin: -1.25rem -1.15rem .5rem -1.15rem;
-  }
+  border: 1px solid var(--border);
 }
 
 .gift-name {
