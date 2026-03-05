@@ -35,6 +35,10 @@ const giftNameInput = document.getElementById('gift-name');
 const btnCloseModal = document.getElementById('btn-close-modal');
 const btnAddGift = document.getElementById('btn-add-gift');
 const btnSaveGift = document.getElementById('btn-save-gift');
+const giftImageInput = document.getElementById('gift-image-input');
+const giftImagePreview = document.getElementById('gift-image-preview');
+
+let currentImageBase64 = null;
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 let toastTimer;
@@ -112,15 +116,24 @@ function subscribeGifts() {
                 ? `<em style="color:var(--gold-light);font-size:.78rem;">"${escHtml(data.customText)}"</em>`
                 : '<span style="color:var(--text-dim);">—</span>';
 
+            const iconHtml = data.image
+                ? `<img src="${data.image}" style="width:32px;height:32px;object-fit:cover;border-radius:4px;" />`
+                : `<span style="font-size:1.2rem;">${escHtml(data.icon || '🎁')}</span>`;
+
             return `
         <tr>
           <td style="color:var(--text-dim);font-size:.75rem;">${String(i + 1).padStart(2, '0')}</td>
-          <td>${escHtml(data.name)}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:.5rem;">
+               ${iconHtml}
+               <span>${escHtml(data.name)}</span>
+            </div>
+          </td>
           <td>${statusHtml}</td>
           <td>${chosenByHtml}</td>
           <td>${noteHtml}</td>
           <td style="text-align:right;">
-             <button class="btn-edit-gift" data-id="${d.id}" data-name="${escHtml(data.name)}" data-icon="${escHtml(data.icon)}" title="Editar" style="background:transparent; border:none; font-size:1.1rem; cursor:pointer;">✏️</button>
+             <button class="btn-edit-gift" data-id="${d.id}" data-name="${escHtml(data.name)}" title="Editar" style="background:transparent; border:none; font-size:1.1rem; cursor:pointer;">✏️</button>
              <button class="btn-del-gift" data-id="${d.id}" data-name="${escHtml(data.name)}" title="Excluir" style="background:transparent; border:none; font-size:1.1rem; cursor:pointer; margin-left:.5rem;">🗑️</button>
           </td>
         </tr>
@@ -128,12 +141,23 @@ function subscribeGifts() {
         }).join('');
 
         // Wire up buttons
-        giftsTbody.querySelectorAll('.btn-edit-gift').forEach(btn => {
+        giftsTbody.querySelectorAll('.btn-edit-gift').forEach((btn, idx) => {
             btn.addEventListener('click', () => {
+                const data = sorted[idx].data();
                 giftModalTitle.textContent = 'Editar Presente';
                 giftIdInput.value = btn.dataset.id;
-                giftNameInput.value = btn.dataset.name;
-                giftIconInput.value = btn.dataset.icon;
+                giftNameInput.value = data.name;
+                giftIconInput.value = data.icon || '';
+
+                currentImageBase64 = data.image || null;
+                if (currentImageBase64) {
+                    giftImagePreview.src = currentImageBase64;
+                    giftImagePreview.style.display = 'block';
+                } else {
+                    giftImagePreview.src = '';
+                    giftImagePreview.style.display = 'none';
+                }
+                if (giftImageInput) giftImageInput.value = ''; // clear file selection
                 giftModal.classList.remove('hidden');
             });
         });
@@ -154,11 +178,58 @@ function subscribeGifts() {
 }
 
 // ── Gifts Actions (Create / Edit) ─────────────────────────────────────────
+if (giftImageInput) {
+    giftImageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            if (!currentImageBase64) giftImagePreview.style.display = 'none';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_SIZE = 400; // Constrain to 400px to keep Base64 size tiny for Firestore (<1MB limit)
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    }
+                } else {
+                    if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                currentImageBase64 = canvas.toDataURL('image/webp', 0.85); // WebP format for better compression
+                giftImagePreview.src = currentImageBase64;
+                giftImagePreview.style.display = 'block';
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 if (btnAddGift) {
     btnAddGift.addEventListener('click', () => {
         giftModalTitle.textContent = 'Novo Presente';
         giftForm.reset();
         giftIdInput.value = '';
+        currentImageBase64 = null;
+        if (giftImagePreview) {
+            giftImagePreview.src = '';
+            giftImagePreview.style.display = 'none';
+        }
         giftModal.classList.remove('hidden');
     });
 }
@@ -180,13 +251,14 @@ if (giftForm) {
         btnSaveGift.disabled = true;
         try {
             if (id) {
-                await updateDoc(doc(db, 'gifts', id), { name, icon });
+                await updateDoc(doc(db, 'gifts', id), { name, icon, image: currentImageBase64 });
                 showToast('Presente atualizado!');
             } else {
                 const newId = 'x' + Date.now(); // sorts at the end naturally
                 await setDoc(doc(db, 'gifts', newId), {
                     name,
                     icon,
+                    image: currentImageBase64,
                     isOther: false,
                     chosenBy: null,
                     chosenByName: null,

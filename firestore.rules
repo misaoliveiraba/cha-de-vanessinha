@@ -27,7 +27,7 @@ service cloud.firestore {
           // Updating customText on own gift
           (resource.data.chosenBy == request.auth.uid
             && request.resource.data.chosenBy == request.auth.uid
-            && request.resource.data.keys().hasOnly(['customText', 'chosenBy', 'chosenByName', 'chosenByPhoto', 'name', 'icon', 'isOther']))
+            && request.resource.data.keys().hasOnly(['customText', 'chosenBy', 'chosenByName', 'chosenByPhoto', 'name', 'icon', 'image', 'isOther']))
         ));
 
       // Seeding: allow any authenticated user to create gift docs

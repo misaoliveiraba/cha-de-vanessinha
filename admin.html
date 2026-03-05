@@ -114,9 +114,17 @@
             <form id="gift-form">
                 <input type="hidden" id="gift-id" />
                 <div style="margin-bottom:1rem; text-align:left;">
+                    <label style="display:block; font-size:.8rem; margin-bottom:.3rem; color:var(--text-muted);">Foto do
+                        Item (Opcional)</label>
+                    <input type="file" id="gift-image-input" accept="image/*"
+                        style="width:100%; color:var(--text-muted); font-size:.8rem; margin-bottom:.5rem;" />
+                    <img id="gift-image-preview" src=""
+                        style="display:none; width:100px; height:100px; object-fit:cover; border-radius:8px; border:1px solid var(--border);" />
+                </div>
+                <div style="margin-bottom:1rem; text-align:left;">
                     <label style="display:block; font-size:.8rem; margin-bottom:.3rem; color:var(--text-muted);">Ícone
-                        (Emoji)</label>
-                    <input type="text" id="gift-icon" class="gift-custom-input" placeholder="Ex: 📦" required />
+                        ou Emoji (Padrão: 🎁)</label>
+                    <input type="text" id="gift-icon" class="gift-custom-input" placeholder="Ex: 📦" />
                 </div>
                 <div style="margin-bottom:1.5rem; text-align:left;">
                     <label style="display:block; font-size:.8rem; margin-bottom:.3rem; color:var(--text-muted);">Nome do

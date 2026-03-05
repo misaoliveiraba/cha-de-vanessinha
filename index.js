@@ -166,7 +166,10 @@ function renderGiftCard(id, data) {
     card.dataset.id = id;
 
     card.innerHTML = `
-    <div class="gift-icon">${data.icon || '🎁'}</div>
+    ${data.image
+            ? `<img class="gift-photo" src="${data.image}" alt="${escHtml(data.name)}" loading="lazy" />`
+            : `<div class="gift-icon">${data.icon || '🎁'}</div>`
+        }
     <div class="gift-name">${escHtml(data.name)}</div>
     <div class="gift-status" id="status-${id}">
       ${isChosen
