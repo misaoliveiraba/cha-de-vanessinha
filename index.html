@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chá de Casa Nova 🏡</title>
+  <meta name="description" content="Cardápio de presentes e mural de recados para o Chá de Casa Nova. Entre com sua conta Google para participar!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Favicon emoji -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>" />
+</head>
+<body>
+
+<!-- ── Login Overlay ──────────────────────────────────── -->
+<div id="login-overlay">
+  <div class="hero-ornament hero-ornament--top"></div>
+  <p class="hero-tag">Você foi convidado(a) ✨</p>
+  <h1 class="login-logo">Chá de Casa Nova</h1>
+  <p class="login-sub">
+    Mais um passo ao lado de quem faz parte da minha história.<br/>
+    Faça login para escolher um presente e deixar um recado especial!
+  </p>
+  <button class="btn-google" id="btn-login">
+    <!-- Google G icon -->
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      <path fill="none" d="M0 0h48v48H0z"/>
+    </svg>
+    Entrar com Google
+  </button>
+</div>
+
+<!-- ── App ────────────────────────────────────────────── -->
+<div id="app" style="display:none;">
+
+  <!-- User Bar -->
+  <div id="user-bar" class="hidden">
+    <img class="user-avatar" id="user-avatar" src="" alt="Foto" />
+    <span class="user-name" id="user-name">…</span>
+    <a href="admin.html" id="admin-link" style="display:none; font-size:.78rem; color:var(--gold); text-decoration:none; margin-right:.5rem;">Admin ↗</a>
+    <button class="btn-signout" id="btn-signout">Sair</button>
+  </div>
+
+  <!-- Hero Header -->
+  <header id="hero">
+    <div class="hero-ornament hero-ornament--top"></div>
+    <p class="hero-tag">Chá de Casa Nova 🏡</p>
+    <h1 class="hero-title">Um novo <span>lar</span>,<br/>um novo começo.</h1>
+    <p class="hero-msg">
+      Mais um passo ao lado de quem faz parte da minha história.
+      Venha viver esse momento comigo! 🏡✨
+    </p>
+    <div class="hero-details">
+      <span class="hero-detail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        Rua Dom Pedro II, Nº 91, Centro
+      </span>
+      <span class="hero-detail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        29 de Março de 2026
+      </span>
+      <span class="hero-detail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        15h00
+      </span>
+    </div>
+  </header>
+
+  <!-- Gift Section -->
+  <main class="section" id="gifts-section">
+    <span class="section-label">Cardápio de Presentes</span>
+    <h2 class="section-title">Qual item você escolhe?</h2>
+    <p class="section-desc">
+      Clique em "Escolher" para reservar um item. Apenas um item por vez.
+      Você pode trocar sua escolha quando quiser.
+    </p>
+    <div id="gift-grid">
+      <div class="spinner"></div>
+    </div>
+  </main>
+
+  <div class="divider"></div>
+
+  <!-- Message Board -->
+  <section id="message-section">
+    <div class="section">
+      <span class="section-label">Mural de Recados</span>
+      <h2 class="section-title">Deixe sua mensagem especial</h2>
+      <p class="section-desc">
+        Deixe aqui um desejo, dica ou palavra especial para essa nova etapa. 💬
+      </p>
+      <div class="msg-form">
+        <textarea
+          class="msg-textarea"
+          id="msg-input"
+          placeholder="Escreva sua mensagem... (ex: Que seu novo lar seja cheio de amor e alegria!)"
+          maxlength="300"
+          rows="3"
+        ></textarea>
+        <button class="btn-send" id="btn-send-msg">Enviar ✈</button>
+      </div>
+    </div>
+
+    <!-- Balloon Mural -->
+    <div id="mural">
+      <p class="mural-empty" id="mural-empty">As mensagens dos convidados aparecerão aqui ✨</p>
+    </div>
+  </section>
+
+  <footer>
+    Feito com 🤍 para celebrar essa nova fase &nbsp;·&nbsp;
+    <span>Chá de Casa Nova 2026</span>
+  </footer>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script type="module" src="index.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Gifts — authenticated users can read all
+    // Only the owner can update (choose/release) their own choice
+    match /gifts/{giftId} {
+      allow read: if request.auth != null;
+
+      // Allow choosing a free gift
+      allow update: if request.auth != null
+        && (
+          // Releasing: must be the owner
+          (resource.data.chosenBy == request.auth.uid
+            && request.resource.data.chosenBy == null)
+          ||
+          // Choosing: gift must be free
+          (resource.data.chosenBy == null
+            && request.resource.data.chosenBy == request.auth.uid)
+          ||
+          // Updating customText on own gift
+          (resource.data.chosenBy == request.auth.uid
+            && request.resource.data.chosenBy == request.auth.uid
+            && request.resource.data.keys().hasOnly(['customText', 'chosenBy', 'chosenByName', 'chosenByPhoto', 'name', 'icon', 'isOther']))
+        );
+
+      // No deletes or creates by regular users
+      allow create, delete: if false;
+    }
+
+    // Messages — authenticated users can read and create
+    // Only the specific admin email can delete
+    match /messages/{msgId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 300;
+      allow delete: if request.auth != null
+        && request.auth.token.email == 'COLOQUE_SEU_EMAIL_AQUI@gmail.com';
+      allow update: if false;
+    }
+  }
+}
