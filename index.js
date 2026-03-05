@@ -71,7 +71,10 @@ function showToast(msg) {
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────
+let isLoggingIn = false;
 document.getElementById('btn-login').addEventListener('click', async () => {
+    if (isLoggingIn) return;
+    isLoggingIn = true;
     try {
         const result = await signInWithPopup(auth, provider);
         const email = result.user.email?.trim().toLowerCase();
@@ -79,8 +82,16 @@ document.getElementById('btn-login').addEventListener('click', async () => {
             window.location.href = 'admin.html';
         }
     } catch (e) {
-        showToast('Erro ao fazer login. Tente novamente.');
-        console.error(e);
+        if (e.code === 'auth/popup-blocked') {
+            showToast('O login foi bloqueado pelo navegador. Ative os pop-ups.');
+        } else if (e.code === 'auth/cancelled-popup-request') {
+            console.warn('Login popup request was superseded.');
+        } else {
+            showToast('Erro ao fazer login. Tente novamente.');
+            console.error(e);
+        }
+    } finally {
+        isLoggingIn = false;
     }
 });
 
