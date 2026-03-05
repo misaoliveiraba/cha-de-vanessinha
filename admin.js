@@ -5,7 +5,7 @@ import {
     collection, doc, deleteDoc,
     onSnapshot, query, orderBy
 } from './firebase.js';
-
+ 
 // ── Admin e-mails — add allowed admin emails here ───────────────────────
 const ADMIN_EMAILS = [
     'nessacarolsp@gmail.com',
